@@ -1,0 +1,59 @@
+name: Pages Pipeline
+
+on:
+  push:
+    branches: [master]
+
+jobs:
+  build-artifact:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - name: Set up JDK 11
+        uses: actions/setup-java@v1
+        with:
+          java-version: 11
+      - name: Build with Gradle
+        run: |
+          chmod +x ./gradlew
+          ./gradlew clean build
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: artifact
+          path: build/libs/pages.jar
+
+      - name: build-docker-image
+        uses: docker/build-push-action@v1
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+          repository: ${{ secrets.DOCKER_USERNAME }}/pages
+          tags: pipeline
+
+  deploy-to-cluster:
+    needs: build-artifact
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - name: Install Kubectl
+        run: |
+          sudo apt-get update
+          curl -LO "https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl"
+          chmod +x ./kubectl
+          sudo mv ./kubectl /usr/local/bin/kubectl
+          kubectl version --client
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-south-1
+      - name: EKS Login
+        run: |
+          aws eks --region ap-south-1 update-kubeconfig --name dees-cloud
+          kubectl config get-contexts
+          kubectl apply -f deployment/pages-namespace.yaml
+          kubectl apply -f deployment/pages-config.yaml
+          kubectl apply -f deployment/pages-service.yaml
+          kubectl apply -f deployment/pages-deployment.yaml

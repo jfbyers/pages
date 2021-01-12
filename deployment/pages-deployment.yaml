@@ -17,7 +17,7 @@ spec:
         app: pages
     spec:
       containers:
-        - image: piresgunner/pages:config
+        - image: piresgunner/pages:pipeline
           name: pages
           ports:
             - containerPort: 8080
