@@ -4,4 +4,4 @@ data:
 kind: ConfigMap
 metadata:
   name: pages-config-map
-  namespace: [student-name]
+  namespace: brixton

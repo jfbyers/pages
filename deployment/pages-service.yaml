@@ -5,7 +5,7 @@ metadata:
     app: pages
     tier: service
   name: pages
-  namespace: [student-name]
+  namespace: brixton
 spec:
   ports:
     - name: pages-service-port

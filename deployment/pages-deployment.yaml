@@ -5,7 +5,7 @@ metadata:
     app: pages
     tier: service
   name: pages
-  namespace: [student-name]
+  namespace: brixton
 spec:
   replicas: 1
   selector:
@@ -20,7 +20,7 @@ spec:
         tier: service
     spec:
       containers:
-        - image: [docker-username]/pages:service
+        - image: piresgunner/pages:service
           name: pages
           ports:
             - containerPort: 8080
@@ -30,3 +30,12 @@ spec:
                 configMapKeyRef:
                   name: pages-config-map
                   key: PAGE_CONTENT
+            - name: SPRING_DATASOURCE_URL
+              value: jdbc:mysql://pages-mysql/pages
+            - name: SPRING_DATASOURCE_USERNAME
+              value: "root"
+            - name: SPRING_DATASOURCE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-pass
+                  key: password
