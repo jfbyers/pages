@@ -1,0 +1,47 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: flyway-job
+  namespace: brixton
+  labels:
+    app: pages
+spec:
+  template:
+    spec:
+      containers:
+        - name: flyway
+          image: flyway/flyway:6.4.4
+          args:
+            - info
+            - migrate
+            - info
+          env:
+            - name: FLYWAY_URL
+              value: jdbc:mysql://pages-mysql/pages
+            - name: FLYWAY_USER
+              value: root
+            - name: FLYWAY_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-pass
+                  key: password
+            - name: FLYWAY_PLACEHOLDER_REPLACEMENT
+              value: "true"
+            - name: FLYWAY_PLACEHOLDERS_USERNAME
+              valueFrom:
+                configMapKeyRef:
+                  name: flyway-configmap
+                  key: spring.datasource.username
+            - name: FLYWAY_PLACEHOLDERS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-pass
+                  key: spring.datasource.password
+          volumeMounts:
+            - mountPath: /flyway/sql
+              name: sql
+      volumes:
+        - name: sql
+          configMap:
+            name: flyway-configmap
+      restartPolicy: Never

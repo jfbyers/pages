@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mysql
+  namespace: brixton
+  labels:
+    app: pages
+    tier: database
+spec:
+  selector:
+    matchLabels:
+      app: pages
+      tier: database
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: pages
+        tier: database
+    spec:
+      containers:
+        - image: mysql:8.0
+          name: mysql
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-pass
+                  key: password
+            - name: MYSQL_SERVICE_HOST
+              value: "pages-mysql"
+            - name: MYSQL_SERVICE_PORT
+              value: "3306"
+            - name: MYSQL_DATABASE
+              value: "pages"
+            - name: MYSQL_USER
+              value: "root"
+          ports:
+            - containerPort: 3306
+              name: mysql
+          volumeMounts:
+            - name: mysql-persistent-storage
+              mountPath: /docker-entrypoint-initdb.d
+      volumes:
+        - name: mysql-persistent-storage
+          emptyDir: {}

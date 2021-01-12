@@ -4,7 +4,7 @@ metadata:
   labels:
     app: pages
   name: pages
-  namespace: [student-name]
+  namespace: brixton
 spec:
   replicas: 1
   selector:
@@ -17,7 +17,7 @@ spec:
         app: pages
     spec:
       containers:
-        - image: [docker-username]/pages:[tag]
+        - image: piresgunner/pages:db
           name: pages
           ports:
             - containerPort: 8080
