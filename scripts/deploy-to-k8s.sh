@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 set -ex
+kubectl apply -f deployment/rbac.yaml
 
 kubectl apply -f deployment/pages-namespace.yaml
 kubectl apply -f deployment/pages-config.yaml

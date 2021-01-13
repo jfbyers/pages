@@ -22,7 +22,7 @@ jobs:
       - name: Build with Gradle
         run: |
           chmod +x ./gradlew
-          ./gradlew clean build
+          ./gradlew clean build -x test
       - name: Upload Artifact
         uses: actions/upload-artifact@v2
         with:
