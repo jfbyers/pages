@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   labels:
     app: pages
-    tier: monitor
+    tier: service
   name: pages
   namespace: brixton
 spec:
@@ -11,14 +11,16 @@ spec:
   selector:
     matchLabels:
       app: pages
-      tier: monitor
+      tier: service
   strategy: {}
   template:
     metadata:
       labels:
         app: pages
-        tier: monitor
+        tier: service
     spec:
+      #imagePullSecrets:
+       # - name: docker
       containers:
         - image: piresgunner/pages:monitor
           name: pages
@@ -31,7 +33,7 @@ spec:
                   name: pages-config-map
                   key: PAGE_CONTENT
             - name: SPRING_DATASOURCE_URL
-              value: jdbc:mysql://pages-mysql/pages?useSSL=false
+              value: jdbc:mysql://pages-mysql/pages?allowPublicKeyRetrieval=true&useSSL=false
             - name: SPRING_DATASOURCE_USERNAME
               value: "root"
             - name: SPRING_DATASOURCE_PASSWORD
